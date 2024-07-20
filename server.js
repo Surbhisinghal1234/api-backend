@@ -1,5 +1,3 @@
-//.....................................................
-
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -21,6 +19,9 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
+
+
+
 });
 
 const storage = new CloudinaryStorage({
@@ -66,15 +67,32 @@ app.get('/prod', async (req, res) => {
   }
 });
 
-app.post('/products', upload.single('images'), async (req, res) => {
+// app.post('/products', upload.single('images'), async (req, res) => {
+//   try {
+//     const itemData = req.body;
+//     itemData.image = req.file.path; // add image path to itemData
+//     const item = new Product(itemData);
+//     console.log("Data received");
+//     await item.save();
+//     res.status(201).send(item);
+//     console.log(item, "item");
+//   } catch (e) {
+//     console.error(e);
+//     res.status(400).send("Error saving data");
+//   }
+// });
+
+app.post('/products', async (req, res) => {
   try {
-    const itemData = req.body;
-    itemData.image = req.file.path; // add image path to itemData
-    const item = new Product(itemData);
-    console.log("Data received");
+    const { name, price, image } = req.body;
+
+    if (!name || !price || !image) {
+      return res.status(400).send('Missing required fields');
+    }
+
+    const item = new Product({ name, price, image });
     await item.save();
     res.status(201).send(item);
-    console.log(item, "item");
   } catch (e) {
     console.error(e);
     res.status(400).send("Error saving data");
