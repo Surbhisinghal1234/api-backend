@@ -39,6 +39,10 @@ mongoose.connect(
   console.error('MongoDB connection error:', error);
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to my API!');
+});
+
 app.post('/api/products', upload.single('images'), async (req, res) => {
 
   const itemData = req.body;
