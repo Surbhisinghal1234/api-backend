@@ -43,8 +43,9 @@ app.use(limiter);
 
 app.get('/prod', async (req, res) => {
   try {
-    const users = await Product.find();
-    res.json(users);
+    // const users = await Product.find();
+    const products = await Product.find().select(["-__v", "-_id"]);
+    res.json(products);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Failed' });
