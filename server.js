@@ -43,7 +43,6 @@ app.use(limiter);
 
 app.get('/prod', async (req, res) => {
   try {
-    // const users = await Product.find();
     const products = await Product.find().select(["-__v", "-_id"]);
     res.json(products);
   } catch (error) {
@@ -54,8 +53,8 @@ app.get('/prod', async (req, res) => {
 
 app.post('/products', async (req, res) => {
   try {
-    const { name, price, description, image } = req.body;
-    const user = new Product({ name, price, description, image });
+    const { id, name, price, description, image } = req.body;
+    const user = new Product({id, name, price, description, image });
     await user.save();
     res.json({ message: 'Products added successfully' });
   } catch (error) {
