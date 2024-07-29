@@ -4,6 +4,8 @@ import { connect } from 'mongoose';
 import Product from './models/Product.js';
 import 'dotenv/config';
 const PORT = 3000;
+// import throttle from 'throttle'; 
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 app.use(cors({
@@ -23,6 +25,21 @@ connect(
 }).catch((error) => {
   console.error('MongoDB connection error', error);
 });
+
+// Rate limiting
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  statusCode: 200,
+  message: {
+   status: 429,
+   error: 'Too many requests from this IP, please try again later.'
+  }
+});
+
+app.use(limiter);
+
 
 app.get('/prod', async (req, res) => {
   try {
