@@ -41,33 +41,16 @@ const limiter = rateLimit({
 app.use(limiter);
 
 
-// app.get('/prod', async (req, res) => {
-//   try {
-//     const products = await Product.find().select(["-__v", "-_id"]);
-//     res.json(products);
-//   } catch (error) {
-//     console.error('Error', error);
-//     res.status(500).json({ error: 'Failed' });
-//   }
-// });
 app.get('/prod', async (req, res) => {
   try {
-    const products = await Product.find().select(["-__v"]); 
-    
-    const updatedProducts = products.map((product, index) => {
-      const { _id, ...rest } = product.toObject(); 
-      return {
-        id: index + 1, 
-        ...rest
-      };
-    });
-
-    res.json(updatedProducts);
+    const products = await Product.find().select(["-__v", "-_id"]);
+    res.json(products);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Failed' });
   }
 });
+
 
 app.post('/products', async (req, res) => {
   try {
