@@ -2,19 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import { connect } from 'mongoose';
 import Product from './models/Product.js';
+import Email from './models/Email.js';
+import nodemailer from 'nodemailer';
 import 'dotenv/config';
+
 const PORT = 3000;
 // import throttle from 'throttle'; 
 import rateLimit from 'express-rate-limit';
 
 const app = express();
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  headers: ['Content-Type', 'Authorization']
-}));
-app.use(express.json());
 
+app.use(express.json());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 const username = process.env.MONGO_USERNAME;
 const password = encodeURIComponent(process.env.MONGO_PASSWORD);
 
@@ -51,7 +51,6 @@ app.get('/prod', async (req, res) => {
   }
 });
 
-
 app.post('/products', async (req, res) => {
   try {
     const { id, name, price, description, image } = req.body;
@@ -65,6 +64,61 @@ app.post('/products', async (req, res) => {
     res.status(500).json({ error: 'Failed' });
   }
 });
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await Product.deleteOne({ id });
+
+    if (result.deletedCount > 0) {
+      res.json({ message: 'Product deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Product not found' });
+    }
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Failed' });
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+  },
+});
+
+async function sendMail(to, sub, msg) {
+  try {
+      const info = await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: to, 
+          subject: sub, 
+          text: msg, 
+          //   html: `<b>${msg}</b>`, // html body
+      });
+      console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+      console.error("Error sending email", error);
+  }
+}
+
+app.post('/send-email', async (req, res) => {
+  const { to, subject, message } = req.body;
+  const email = new Email({ to, subject, message });
+  try {
+      await email.save();
+      await sendMail(to, subject, message);
+      res.status(200).send('Email sent successfully');
+  } catch (error) {
+      console.error('Failed', error);
+      res.status(500).send('Failed to send email');
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
