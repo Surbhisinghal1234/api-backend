@@ -40,16 +40,30 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+// Get 
 
 app.get('/prod', async (req, res) => {
   try {
-    const products = await Product.find().select(["-__v", "-_id"]);
+    const { sort, orderby = 'asc', limit } = req.query;
+
+    let sortObject = {};
+
+    if (sort) {
+      sortObject[sort] = orderby === 'desc' ? -1 : 1;
+    } 
+
+    const products = await Product.find()
+      .sort(sortObject)
+      .limit(limit ? Number(limit) : 0)
+      .select(["-__v", "-_id"]);
+
     res.json(products);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Failed' });
   }
 });
+
 
 app.post('/products', async (req, res) => {
   try {
