@@ -54,7 +54,7 @@ app.get('/prod', async (req, res) => {
 
     const products = await Product.find()
       .sort(sortObject)
-      .limit(limit ? Number(limit) : 0)
+      .limit( Number(limit))
       .select(["-__v", "-_id"]);
 
     res.json(products);
