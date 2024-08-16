@@ -38,6 +38,8 @@ const limiter = rateLimit({
   }
 });
 
+
+
 app.use(limiter);
 
 // Get 
@@ -78,6 +80,10 @@ app.post('/products', async (req, res) => {
     res.status(500).json({ error: 'Failed' });
   }
 });
+
+
+
+
 app.delete('/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
