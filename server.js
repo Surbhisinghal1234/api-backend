@@ -5,6 +5,8 @@ import Product from './models/Product.js';
 import Email from './models/Email.js';
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
+import multer from 'multer';
+import path  from 'path';
 
 const PORT = 3000;
 // import throttle from 'throttle'; 
@@ -56,13 +58,11 @@ app.get('/prod', async (req, res) => {
     if (sort) {
       sortObject[sort] = orderby === 'desc' ? -1 : 1;
     } 
-
     // filter
     // let filterObject = {};
     // if (category) {
     //   filterObject.category = category;
     // }
-
     const products = await Product.find()
       .sort(sortObject)
       .limit( Number(limit))
@@ -74,7 +74,6 @@ app.get('/prod', async (req, res) => {
     res.status(500).json({ error: 'Failed' });
   }
 });
-
 
 app.post('/products', async (req, res) => {
   try {
@@ -92,7 +91,24 @@ app.post('/products', async (req, res) => {
   }
 });
 
+//update data 
+app.put('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
 
+  try {
+    const updatedProduct = await Product.findOneAndUpdate({ id }, updatedData);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 app.delete('/products/:id', async (req, res) => {
   try {
@@ -148,7 +164,6 @@ app.post('/send-email', async (req, res) => {
       res.status(500).send('Failed to send email');
   }
 });
-
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
