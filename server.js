@@ -13,7 +13,11 @@ import rateLimit from 'express-rate-limit';
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*', 
+
+}));
+
 app.use(express.urlencoded({ extended: true }));
 const username = process.env.MONGO_USERNAME;
 const password = encodeURIComponent(process.env.MONGO_PASSWORD);
@@ -39,7 +43,6 @@ const limiter = rateLimit({
 });
 
 
-
 app.use(limiter);
 
 // Get 
@@ -53,6 +56,12 @@ app.get('/prod', async (req, res) => {
     if (sort) {
       sortObject[sort] = orderby === 'desc' ? -1 : 1;
     } 
+
+    // filter
+    // let filterObject = {};
+    // if (category) {
+    //   filterObject.category = category;
+    // }
 
     const products = await Product.find()
       .sort(sortObject)
@@ -69,18 +78,19 @@ app.get('/prod', async (req, res) => {
 
 app.post('/products', async (req, res) => {
   try {
-    const { id, name, price, description, image } = req.body;
+    console.log('Request Body:', req.body);
+    const { id, name, price, description, image,category  } = req.body;
 
-    const user = new Product({id, name, price, description, image });
+    const user = new Product({id, name, price, description, image,category});
 
-    await user.save();         
+    await user.save();  
+    console.log('Product Saved:', user);       
     res.json({ message: 'Products added successfully' });
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Failed' });
   }
 });
-
 
 
 
