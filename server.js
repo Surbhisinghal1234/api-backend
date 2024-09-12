@@ -44,7 +44,6 @@ const limiter = rateLimit({
   }
 });
 
-
 app.use(limiter);
 
 // Get 
@@ -75,24 +74,33 @@ app.get('/prod', async (req, res) => {
   }
 });
 
-app.post('/products', async (req, res) => {
+
+app.post('/postProducts', async (req, res) => {
   try {
-    console.log('Request Body:', req.body);
-    const { id, name, price, description, image,category  } = req.body;
+    console.log('body', req.body);
+    const { id, name, price, description, image, category, featured } = req.body; // destructure featured field
 
-    const user = new Product({id, name, price, description, image,category});
+    const product = new Product({
+      id,
+      name,
+      price,
+      description,
+      image,
+      category,
+      featured, 
+    });
 
-    await user.save();  
-    console.log('Product Saved:', user);       
-    res.json({ message: 'Products added successfully' });
+    await product.save();  
+    console.log('Product Saved:', product);       
+    res.json({ message: 'Product added successfully' });
   } catch (error) {
     console.error('Error', error);
-    res.status(500).json({ error: 'Failed' });
+    res.status(500).json({ error: 'Failed to add product' });
   }
 });
 
 //update data 
-app.put('/products/:id', async (req, res) => {
+app.put('/editProducts/:id', async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
 
