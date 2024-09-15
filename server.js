@@ -6,8 +6,9 @@ import Email from './models/Email.js';
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 import multer from 'multer';
-import path  from 'path';
-
+import path  from 'path'; 
+// import productRoute from "../routes/productRoute.js"
+import productRoute from "./routes/productRoute.js"
 
 const PORT = 3000;
 // import throttle from 'throttle'; 
@@ -34,6 +35,8 @@ connect(
 });
 
 // Rate limiting
+app.use("/api/ecom", productRoute)
+
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
@@ -76,29 +79,30 @@ app.get('/prod', async (req, res) => {
 });
 
 
-app.post('/postProducts', async (req, res) => {
-  try {
-    console.log('body', req.body);
-    const { id, name, price, description, image, category, featured } = req.body; // destructure featured field
+// app.post('/postProducts', async (req, res) => {
+//   try {
+//     console.log('body', req.body);
+//     const { id, name, price, description, image, category, featured } = req.body; // destructure featured field
 
-    const product = new Product({
-      id,
-      name,
-      price,
-      description,
-      image,
-      category,
-      featured, 
-    });
+//     const product = new Product({
+//       id,
+//       name,
+//       price,
+//       description,
+//       image,
+//       category,
+//       featured, 
+//     });
 
-    await product.save();  
-    console.log('Product Saved:', product);       
-    res.json({ message: 'Product added successfully' });
-  } catch (error) {
-    console.error('Error', error);
-    res.status(500).json({ error: 'Failed to add product' });
-  }
-});
+//     await product.save();  
+//     console.log('Product Saved:', product);       
+//     res.json({ message: 'Product added successfully' });
+//   } catch (error) {
+//     console.error('Error', error);
+//     res.status(500).json({ error: 'Failed to add product' });
+//   }
+// });
+
 
 //update data 
 app.put('/editProducts/:id', async (req, res) => {
@@ -173,6 +177,8 @@ app.post('/send-email', async (req, res) => {
       res.status(500).send('Failed to send email');
   }
 });
+
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
