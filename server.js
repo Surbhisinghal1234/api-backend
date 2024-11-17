@@ -48,7 +48,7 @@ const limiter = rateLimit({
   }
 });
 
-app.use(limiter);
+app.use('/prod',limiter);
 
 // Get 
 
@@ -69,7 +69,8 @@ app.get('/prod', async (req, res) => {
     const products = await Product.find()
       .sort(sortObject)
       .limit( Number(limit))
-      .select(["-__v", "-_id"]);
+      .select(["-__v", "-_id"])
+      .lean();
 
     res.json(products);
   } catch (error) {
